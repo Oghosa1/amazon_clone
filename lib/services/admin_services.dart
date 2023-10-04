@@ -1,0 +1,143 @@
+// ignore_for_file: use_build_context_synchronously
+
+import 'dart:convert';
+import 'dart:io';
+import 'package:amazon_clone/common/error_handling.dart';
+import 'package:amazon_clone/common/utils.dart';
+import 'package:amazon_clone/models/product_model.dart';
+import 'package:amazon_clone/providers/user_provider.dart';
+import 'package:cloudinary_public/cloudinary_public.dart';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
+import 'dart:developer' as developer;
+import '../common/global_variable.dart';
+
+class AdminServices {
+
+  // Add products 
+  void sellProduct({
+    required BuildContext context,
+    required String name,
+    required String description,
+    required double price,
+    required double quantity,
+    required String category,
+    required List<File> images,
+  }) async {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    try {
+      late CloudinaryResponse res;
+      final cloudinary = CloudinaryPublic('dt0bnqugj', 'ow8l0s3n');
+      List<String> imageUrls = [];
+      for (int i = 0; i < images.length; i++) {
+        res = await cloudinary
+            .uploadFile(CloudinaryFile.fromFile(images[i].path, folder: 'Products'));
+
+        imageUrls.add(res.secureUrl);
+      }
+
+      ProductModel productModel = ProductModel(
+        name: name,
+        description: description,
+        quantity: quantity,
+        images: imageUrls,
+        category: category,
+        price: price,
+        publicId: res.publicId
+      );
+
+      http.Response response = await http.post(
+        Uri.parse('$uri/admin/add-product'),
+        headers: <String, String>{
+          'Content-type': 'application/json; charset=UTF-8',
+          'x-auth-token': userProvider.user.token,
+        },
+        body: productModel.toJson(),
+      );
+      httpErrorHandling(
+        response: response,
+        context: context,
+        onSuccess: () {
+          showToast('Product added successfully', context, Colors.white);
+          Navigator.pop(context);
+        },
+      );
+    } catch (e) {
+      showToast(e.toString(), context, Colors.white);
+    }
+  }
+
+  // get all data
+  Future<List<ProductModel>> fetchAllProducts(BuildContext context) async {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    List<ProductModel> productList = [];
+    try {
+      http.Response res =
+          await http.get(Uri.parse('$uri/admin/get-products'), headers: {
+        // 'Content-type': 'application/json; charset=UTF-8',
+        'x-auth-token': userProvider.user.token,
+      });
+
+      httpErrorHandling(
+        response: res,
+        context: context,
+
+        onSuccess: () {
+          final List<dynamic> jsonData = jsonDecode(res.body);
+          for (int i = 0; i < jsonData.length; i++) {
+            productList.add(
+              ProductModel.fromMap(jsonData[i]),
+            );
+          }
+        },
+        // onSuccess: () {
+        //   for (int i = 0; i < jsonDecode(res.body).length; i++) {
+        //     productList.add(
+        //       ProductModel.fromJson(
+        //         // jsonEncode is used here cos we need a String
+        //         jsonEncode(
+        //           // convert res.body to json String cos fromJson will give a runtime error if res.body is directly passed to it as it only accepts String formats and not Object? object which jsonEncode contains
+        //           jsonDecode(res.body[i]),
+        //         ),
+        //       ),
+        //     );
+        //   }
+        // },
+      );
+    } catch (e) {
+      showToast(e.toString(), context, Colors.red);
+    }
+    return productList;
+  }
+
+  void deleteProduct({
+    required BuildContext context,
+    required ProductModel productModel,
+    required VoidCallback onSuccess,
+  }) async {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    try {
+      http.Response response =
+          await http.post(Uri.parse('$uri/admin/delete-product/'),
+              headers: <String, String>{
+                'Content-type': 'application/json; charset=UTF-8',
+                'x-auth-token': userProvider.user.token,
+              },
+              body: jsonEncode(
+                {'id': productModel.id,
+                'img': productModel.publicId},
+              ));
+      httpErrorHandling(
+        response: response,
+        context: context,
+        onSuccess: () {
+          onSuccess();
+        },
+      );
+      developer.log(response.body, name: 'res');
+    } catch (e) {
+      showToast(e.toString(), context, Colors.white);
+    }
+  }
+}
