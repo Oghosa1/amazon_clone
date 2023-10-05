@@ -1,12 +1,15 @@
 import 'package:amazon_clone/models/product_model.dart';
+import 'package:amazon_clone/providers/user_provider.dart';
+import 'package:amazon_clone/services/product_details_service.dart';
 import 'package:amazon_clone/widgets/custom_button.dart';
 import 'package:amazon_clone/widgets/stars.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-
-import '../common/carousel_images.dart';
+import 'package:provider/provider.dart';
 import '../common/global_variable.dart';
+import '../common/utils.dart';
 import 'search_screen.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
@@ -19,8 +22,44 @@ class ProductDetailsScreen extends StatefulWidget {
 }
 
 class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
+  final ProductDetailsServices productDetailsServices =
+      ProductDetailsServices();
   void navigateToSearchScreen(String query) {
     Navigator.pushNamed(context, SearchScreen.routeName, arguments: query);
+  }
+
+  double avgRating = 0;
+  double myRating = 0;
+
+  @override
+  void initState() {
+    super.initState(); // Call the initState of the parent class (important).
+
+    double totalRating = 0; // Initialize a variable to store the total rating.
+
+    // Loop through each rating in the productModel's list of ratings.
+    for (int i = 0; i < widget.productModel.rating!.length; i++) {
+      // Add the rating to the totalRating variable.
+      totalRating += widget.productModel.rating![i].rating;
+
+      // Check if the userId of the current rating matches the user's ID.
+      // ignore: unrelated_type_equality_checks
+      if (widget.productModel.rating![i].userId ==
+          Provider.of<UserProvider>(context, listen: false).user.id) {
+        // If it matches, store the user's rating in a variable called myRating.
+        myRating = widget.productModel.rating![i].rating;
+      }
+    }
+
+    if (totalRating != 0) {
+      avgRating = totalRating / widget.productModel.rating!.length;
+    }
+  }
+
+  // Function to copy text to the clipboard
+  void _copyToClipboard(String text) {
+    Clipboard.setData(ClipboardData(text: text));
+    showToast('Product ID copied', context, Colors.teal);
   }
 
   @override
@@ -107,8 +146,25 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(widget.productModel.id!),
-                  const Stars(rating: 4)
+                  GestureDetector(
+                    onTap: () {
+                      _copyToClipboard(widget.productModel.id!);
+                    },
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.copy,
+                          size: 15,
+                          color: Colors.blueGrey,
+                        ),
+                        Text(
+                          widget.productModel.id!,
+                          style: const TextStyle(color: Colors.blueGrey),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Stars(rating: avgRating)
                 ],
               ),
             ),
@@ -200,7 +256,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               ),
             ),
             RatingBar.builder(
-                initialRating: 0,
+                initialRating: myRating,
                 minRating: 1,
                 itemCount: 5,
                 itemPadding: const EdgeInsets.symmetric(horizontal: 4),
@@ -210,7 +266,12 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       Icons.star,
                       color: GlobalVariables.secondaryColor,
                     ),
-                onRatingUpdate: (rating) {})
+                onRatingUpdate: (rating) {
+                  productDetailsServices.rateProduct(
+                      context: context,
+                      productModel: widget.productModel,
+                      rating: rating);
+                })
           ],
         ),
       ),

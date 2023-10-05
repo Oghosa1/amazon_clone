@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 //Render
+// String uri = 'http://192.168.152.232:3000';
 String uri = 'https://amazon-server-ij8c.onrender.com';
 
 class GlobalVariables {

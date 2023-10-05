@@ -1,5 +1,5 @@
 import 'package:amazon_clone/models/product_model.dart';
-import 'package:amazon_clone/screens/product_details.dart';
+import 'package:amazon_clone/screens/product_details_screen.dart';
 import 'package:amazon_clone/services/search_services.dart';
 import 'package:amazon_clone/widgets/address_box.dart';
 import 'package:amazon_clone/widgets/loader.dart';

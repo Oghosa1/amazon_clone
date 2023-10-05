@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'rating_model.dart';
+
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 class ProductModel {
   final String name;
@@ -8,6 +10,7 @@ class ProductModel {
   final List<String> images;
   final String category;
   final double price;
+  final List<Rating>? rating;
   final String publicId;
   String? id;
   ProductModel({
@@ -19,8 +22,8 @@ class ProductModel {
     required this.price,
     required this.publicId,
     this.id,
+    this.rating,
   });
-  
 
   Map<String, dynamic> toMap() {
     return {
@@ -32,6 +35,7 @@ class ProductModel {
       'price': price,
       'publicId': publicId,
       'id': id,
+      'ratings': rating,
     };
   }
 
@@ -45,10 +49,19 @@ class ProductModel {
       price: map['price']?.toDouble() ?? 0.0,
       publicId: map['publicId'] ?? '',
       id: map['_id'],
+      rating: map['ratings'] != null
+          ? List<Rating>.from(
+              map['ratings']?.map(
+                // Convert each element 'x' into a Rating object using Rating.fromMap constructor
+                (x) => Rating.fromMap(x),
+              ),
+            )
+          : null,
     );
   }
 
   String toJson() => json.encode(toMap());
 
-  factory ProductModel.fromJson(String source) => ProductModel.fromMap(json.decode(source));
+  factory ProductModel.fromJson(String source) =>
+      ProductModel.fromMap(json.decode(source));
 }

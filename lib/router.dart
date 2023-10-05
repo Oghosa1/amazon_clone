@@ -2,7 +2,7 @@ import 'package:amazon_clone/models/product_model.dart';
 import 'package:amazon_clone/screens/auth_screen.dart';
 import 'package:amazon_clone/screens/category_deals_screen.dart';
 import 'package:amazon_clone/screens/home_screen.dart';
-import 'package:amazon_clone/screens/product_details.dart';
+import 'package:amazon_clone/screens/product_details_screen.dart';
 import 'package:flutter/material.dart';
 
 import 'admin/screens/add_product_screen.dart';
