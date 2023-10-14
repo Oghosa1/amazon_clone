@@ -28,6 +28,7 @@ class _CategoryDealsScreenState extends State<CategoryDealsScreen> {
   @override
   void initState() {
     super.initState();
+    print(widget.category);
     fetchCategoryProducts();
   }
 

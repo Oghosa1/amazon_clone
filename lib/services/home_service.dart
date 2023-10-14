@@ -19,12 +19,12 @@ class HomeServices {
     try {
       http.Response res =
           // await http.get(Uri.parse('$uri/api/products?category=$category'),
-          await http.get(Uri.parse('$uri/api/products?category=$category'), 
-          headers: {
-          
+          await http
+              .get(Uri.parse('$uri/api/products?category=$category'), headers: {
         // 'Content-type': 'application/json; charset=UTF-8',
         'x-auth-token': userProvider.user.token,
       });
+      
 
       httpErrorHandling(
         response: res,
@@ -42,5 +42,38 @@ class HomeServices {
       showToast(e.toString(), context, Colors.red);
     }
     return productList;
+  }
+
+  Future<ProductModel> fetchDealOfTheDay({
+    required BuildContext context,
+  }) async {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    ProductModel product = ProductModel(
+        name: '',
+        description: '',
+        quantity: 0,
+        images: [],
+        category: '',
+        price: 0,
+        publicId: '');
+    try {
+      http.Response res =
+          // await http.get(Uri.parse('$uri/api/products?category=$category'),
+          await http.get(Uri.parse('$uri/api/deal-of-the-day'), headers: {
+        // 'Content-type': 'application/json; charset=UTF-8',
+        'x-auth-token': userProvider.user.token,
+      });
+
+      httpErrorHandling(
+        response: res,
+        context: context,
+        onSuccess: () {
+          product = ProductModel.fromJson(res.body);
+        },
+      );
+    } catch (e) {
+      showToast(e.toString(), context, Colors.red);
+    }
+    return product ;
   }
 }

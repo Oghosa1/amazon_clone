@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:amazon_clone/admin/screens/admin_screen.dart';
 import 'package:amazon_clone/screens/auth_screen.dart';
 import 'package:amazon_clone/providers/user_provider.dart';
@@ -7,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'common/global_variable.dart';
 import 'services/auth_service.dart';
 import 'router.dart';
+import 'services/hello_services.dart';
 
 void main() {
   runApp(MultiProvider(
@@ -37,6 +40,10 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     // userData();
     authService.getUserData(context);
+    // Use a Timer to initiate the keepServerAlive function every 10 minutes
+    Timer.periodic(const Duration(minutes: 10), (Timer timer) {
+      keepServerAlive(context: context);
+    });
     // authService.startTokenValidityChecker(context);
   }
 
@@ -58,8 +65,9 @@ class _MyAppState extends State<MyApp> {
         ),
         onGenerateRoute: (settings) => generateRoute(settings),
         home: Provider.of<UserProvider>(context).user.token.isNotEmpty
-        ? Provider.of<UserProvider>(context).user.type == 'user' 
-            ? const BottomBar() : const AdminScreen()
+            ? Provider.of<UserProvider>(context).user.type == 'user'
+                ? const BottomBar()
+                : const AdminScreen()
             : const AuthScreen()
         // home: Builder(builder: (context) {
         //   return FutureBuilder(

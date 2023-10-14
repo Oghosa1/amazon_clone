@@ -9,6 +9,7 @@ class UserModel {
   final String address;
   final String type;
   final String token;
+  final List<dynamic> cart; //7:50:20
   UserModel({
     required this.id,
     required this.name,
@@ -17,6 +18,7 @@ class UserModel {
     required this.address,
     required this.type,
     required this.token,
+    required this.cart,
   });
 
   Map<String, dynamic> toMap() {
@@ -28,19 +30,25 @@ class UserModel {
       'address': address,
       'type': type,
       'token': token,
+      'cart': cart,
     };
   }
 
+  //7:41:46
   factory UserModel.fromMap(Map<String, dynamic> map) {
     return UserModel(
-      id: map['_id'] ?? '',
-      name: map['name'] ?? '',
-      email: map['email'] ?? '',
-      password: map['password'] ?? '',
-      address: map['address'] ?? '',
-      type: map['type'] ?? '',
-      token: map['token'] ?? '',
-    );
+        id: map['_id'] ?? '',
+        name: map['name'] ?? '',
+        email: map['email'] ?? '',
+        password: map['password'] ?? '',
+        address: map['address'] ?? '',
+        type: map['type'] ?? '',
+        token: map['token'] ?? '',
+        cart: List<Map<String, dynamic>>.from(
+          map['cart']?.map(
+            (x) => Map<String, dynamic>.from(x),
+          ),
+        ));
   }
 
   String toJson() => json.encode(toMap());
@@ -49,4 +57,26 @@ class UserModel {
   // UserModel.fromMap(json.decode(source) as Map<String, dynamic>);
   factory UserModel.fromJson(String source) =>
       UserModel.fromMap(json.decode(source));
+
+  UserModel copyWith({
+    String? id,
+    String? name,
+    String? email,
+    String? password,
+    String? address,
+    String? type,
+    String? token,
+    List<dynamic>? cart,
+  }) {
+    return UserModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      password: password ?? this.password,
+      address: address ?? this.address,
+      type: type ?? this.type,
+      token: token ?? this.token,
+      cart: cart ?? this.cart,
+    );
+  }
 }

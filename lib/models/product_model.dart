@@ -10,7 +10,7 @@ class ProductModel {
   final List<String> images;
   final String category;
   final double price;
-  final List<Rating>? rating;
+  final List<Rating>? rating;//7:41:46
   final String publicId;
   String? id;
   ProductModel({

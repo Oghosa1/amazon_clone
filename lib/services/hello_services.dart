@@ -18,7 +18,8 @@ void keepServerAlive({required BuildContext context}) async {
         response: response,
         context: context,
         onSuccess: () {
-          showToast(response.toString(), context, Colors.teal);
+          String res = response.body;
+          showToast(res.toString(), context, Colors.teal);
         });
   } catch (e) {
     showToast(e.toString(), context, Colors.accents);

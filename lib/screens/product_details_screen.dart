@@ -9,7 +9,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:provider/provider.dart';
 import '../common/global_variable.dart';
-import '../common/utils.dart';
 import 'search_screen.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
@@ -27,6 +26,10 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   void navigateToSearchScreen(String query) {
     Navigator.pushNamed(context, SearchScreen.routeName, arguments: query);
   }
+
+  // void addToCart() {
+  //   productDetailsServices.addToCart(context: context, productModel: widget.productModel);
+  // }
 
   double avgRating = 0;
   double myRating = 0;
@@ -59,7 +62,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   // Function to copy text to the clipboard
   void _copyToClipboard(String text) {
     Clipboard.setData(ClipboardData(text: text));
-    showToast('Product ID copied', context, Colors.teal);
+    // showToast('Product ID copied', context, Colors.teal);
   }
 
   @override
@@ -239,10 +242,11 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             Padding(
               padding: const EdgeInsets.all(10),
               child: CustomButton(
-                  text: 'Add to cart',
-                  textColor: Colors.black,
-                  color: const Color.fromRGBO(254, 216, 19, 4),
-                  onTap: () {}),
+                text: 'Add to cart',
+                textColor: Colors.black,
+                color: const Color.fromRGBO(254, 216, 19, 4),
+                onTap: (){},
+              ),
             ),
             Container(
               color: Colors.black12,
